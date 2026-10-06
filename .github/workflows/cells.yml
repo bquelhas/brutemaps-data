@@ -1,0 +1,21 @@
+name: Linhas por quadrícula
+on:
+  schedule: [{ cron: "0 3 * * 1" }]
+  workflow_dispatch: {}
+permissions: { contents: write }
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: python build_cells.py
+        env: { BUDGET_S: "18000" }
+      - run: |
+          git config user.name "brutemaps-data"
+          git config user.email "neo.quelhas@gmail.com"
+          git add cells
+          git commit -m "Linhas atualizadas $(date -u +%F)" || echo "nada novo"
+          git push
