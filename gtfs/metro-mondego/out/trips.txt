@@ -1,0 +1,233 @@
+route_id,service_id,trip_id,trip_headsign,direction_id,shape_id
+S1,DU,S1-DU-0-001,Serpins,0,S1-0
+S1,DU,S1-DU-0-002,Serpins,0,S1-0
+S2,DU,S2-DU-0-003,Serpins,0,S2-0
+S1,DU,S1-DU-0-004,Serpins,0,S1-0
+S2,DU,S2-DU-0-005,Lousã - Estação,0,S2-0
+S1,DU,S1-DU-0-006,Corvo,0,S1-0
+S2,DU,S2-DU-0-007,Serpins,0,S2-0
+S1,DU,S1-DU-0-008,Lousã - Estação,0,S1-0
+S2,DU,S2-DU-0-009,Corvo,0,S2-0
+S1,DU,S1-DU-0-010,Serpins,0,S1-0
+S2,DU,S2-DU-0-011,Lousã - Estação,0,S2-0
+S1,DU,S1-DU-0-012,Corvo,0,S1-0
+S2,DU,S2-DU-0-013,Serpins,0,S2-0
+S1,DU,S1-DU-0-014,Lousã - Estação,0,S1-0
+S2,DU,S2-DU-0-015,Corvo,0,S2-0
+S1,DU,S1-DU-0-016,Serpins,0,S1-0
+S1,DU,S1-DU-0-017,Lousã - Estação,0,S1-0
+S2,DU,S2-DU-0-018,Serpins,0,S2-0
+S1,DU,S1-DU-0-019,Lousã - Estação,0,S1-0
+S2,DU,S2-DU-0-020,Serpins,0,S2-0
+S1,DU,S1-DU-0-021,Lousã - Estação,0,S1-0
+S2,DU,S2-DU-0-022,Serpins,0,S2-0
+S1,DU,S1-DU-0-023,Lousã - Estação,0,S1-0
+S2,DU,S2-DU-0-024,Serpins,0,S2-0
+S1,DU,S1-DU-0-025,Lousã - Estação,0,S1-0
+S2,DU,S2-DU-0-026,Serpins,0,S2-0
+S1,DU,S1-DU-0-027,Lousã - Estação,0,S1-0
+S2,DU,S2-DU-0-028,Serpins,0,S2-0
+S2,DU,S2-DU-0-029,Serpins,0,S2-0
+S1,DU,S1-DU-0-030,Lousã - Estação,0,S1-0
+S2,DU,S2-DU-0-031,Corvo,0,S2-0
+S1,DU,S1-DU-0-032,Serpins,0,S1-0
+S2,DU,S2-DU-0-033,Lousã - Estação,0,S2-0
+S1,DU,S1-DU-0-034,Corvo,0,S1-0
+S2,DU,S2-DU-0-035,Serpins,0,S2-0
+S1,DU,S1-DU-0-036,Lousã - Estação,0,S1-0
+S2,DU,S2-DU-0-037,Corvo,0,S2-0
+S1,DU,S1-DU-0-038,Serpins,0,S1-0
+S2,DU,S2-DU-0-039,Lousã - Estação,0,S2-0
+S1,DU,S1-DU-0-040,Corvo,0,S1-0
+S2,DU,S2-DU-0-041,Serpins,0,S2-0
+S1,DU,S1-DU-0-042,Lousã - Estação,0,S1-0
+S2,DU,S2-DU-0-043,Corvo,0,S2-0
+S1,DU,S1-DU-0-044,Serpins,0,S1-0
+S2,DU,S2-DU-0-045,Lousã - Estação,0,S2-0
+S1,DU,S1-DU-0-046,Corvo,0,S1-0
+S2,DU,S2-DU-0-047,Serpins,0,S2-0
+S1,DU,S1-DU-0-048,Lousã - Estação,0,S1-0
+S2,DU,S2-DU-0-049,Serpins,0,S2-0
+S1,DU,S1-DU-0-050,Lousã - Estação,0,S1-0
+S2,DU,S2-DU-0-051,Serpins,0,S2-0
+S1,DU,S1-DU-0-052,Lousã - Estação,0,S1-0
+S2,DU,S2-DU-0-053,Serpins,0,S2-0
+S1,DU,S1-DU-0-054,Lousã - Estação,0,S1-0
+S2,DU,S2-DU-0-055,Serpins,0,S2-0
+S1,DU,S1-DU-0-056,Lousã - Estação,0,S1-0
+S2,DU,S2-DU-0-057,Serpins,0,S2-0
+S1,DU,S1-DU-0-058,Serpins,0,S1-0
+S1,DU,S1-DU-1-001,Coimbra B,1,S1-1
+S2,DU,S2-DU-1-002,República,1,S2-1
+S1,DU,S1-DU-1-003,Coimbra B,1,S1-1
+S2,DU,S2-DU-1-004,República,1,S2-1
+S1,DU,S1-DU-1-005,Coimbra B,1,S1-1
+S2,DU,S2-DU-1-006,República,1,S2-1
+S1,DU,S1-DU-1-007,Coimbra B,1,S1-1
+S2,DU,S2-DU-1-008,República,1,S2-1
+S1,DU,S1-DU-1-009,Coimbra B,1,S1-1
+S2,DU,S2-DU-1-010,República,1,S2-1
+S1,DU,S1-DU-1-011,Coimbra B,1,S1-1
+S2,DU,S2-DU-1-012,República,1,S2-1
+S1,DU,S1-DU-1-013,Coimbra B,1,S1-1
+S2,DU,S2-DU-1-014,República,1,S2-1
+S1,DU,S1-DU-1-015,Coimbra B,1,S1-1
+S2,DU,S2-DU-1-016,República,1,S2-1
+S1,DU,S1-DU-1-017,Coimbra B,1,S1-1
+S2,DU,S2-DU-1-018,República,1,S2-1
+S1,DU,S1-DU-1-019,Coimbra B,1,S1-1
+S2,DU,S2-DU-1-020,República,1,S2-1
+S1,DU,S1-DU-1-021,Coimbra B,1,S1-1
+S2,DU,S2-DU-1-022,República,1,S2-1
+S1,DU,S1-DU-1-023,Coimbra B,1,S1-1
+S2,DU,S2-DU-1-024,República,1,S2-1
+S1,DU,S1-DU-1-025,Coimbra B,1,S1-1
+S2,DU,S2-DU-1-026,República,1,S2-1
+S1,DU,S1-DU-1-027,Coimbra B,1,S1-1
+S2,DU,S2-DU-1-028,República,1,S2-1
+S1,DU,S1-DU-1-029,Coimbra B,1,S1-1
+S2,DU,S2-DU-1-030,República,1,S2-1
+S1,DU,S1-DU-1-031,Coimbra B,1,S1-1
+S2,DU,S2-DU-1-032,República,1,S2-1
+S1,DU,S1-DU-1-033,Coimbra B,1,S1-1
+S2,DU,S2-DU-1-034,República,1,S2-1
+S1,DU,S1-DU-1-035,Coimbra B,1,S1-1
+S2,DU,S2-DU-1-036,República,1,S2-1
+S1,DU,S1-DU-1-037,Coimbra B,1,S1-1
+S2,DU,S2-DU-1-038,República,1,S2-1
+S1,DU,S1-DU-1-039,Coimbra B,1,S1-1
+S2,DU,S2-DU-1-040,República,1,S2-1
+S1,DU,S1-DU-1-041,Coimbra B,1,S1-1
+S2,DU,S2-DU-1-042,República,1,S2-1
+S1,DU,S1-DU-1-043,Coimbra B,1,S1-1
+S2,DU,S2-DU-1-044,República,1,S2-1
+S1,DU,S1-DU-1-045,Coimbra B,1,S1-1
+S2,DU,S2-DU-1-046,República,1,S2-1
+S1,DU,S1-DU-1-047,Coimbra B,1,S1-1
+S2,DU,S2-DU-1-048,República,1,S2-1
+S1,DU,S1-DU-1-049,Coimbra B,1,S1-1
+S2,DU,S2-DU-1-050,República,1,S2-1
+S1,DU,S1-DU-1-051,Coimbra B,1,S1-1
+S1,DU,S1-DU-1-052,Coimbra B,1,S1-1
+S2,DU,S2-DU-1-053,República,1,S2-1
+S1,DU,S1-DU-1-054,Coimbra B,1,S1-1
+S2,DU,S2-DU-1-055,República,1,S2-1
+S1,DU,S1-DU-1-056,Coimbra B,1,S1-1
+S2,DU,S2-DU-1-057,República,1,S2-1
+S1,DU,S1-DU-1-058,Coimbra B,1,S1-1
+S2,DU,S2-DU-1-059,República,1,S2-1
+S1,DU,S1-DU-1-060,Coimbra B,1,S1-1
+S2,DU,S2-DU-1-061,República,1,S2-1
+S1,DU,S1-DU-1-062,Coimbra B,1,S1-1
+S1,SAB,S1-SAB-0-001,Serpins,0,S1-0
+S2,SAB,S2-SAB-0-002,Serpins,0,S2-0
+S1,SAB,S1-SAB-0-003,Lousã - Estação,0,S1-0
+S2,SAB,S2-SAB-0-004,Serpins,0,S2-0
+S1,SAB,S1-SAB-0-005,Lousã - Estação,0,S1-0
+S2,SAB,S2-SAB-0-006,Serpins,0,S2-0
+S1,SAB,S1-SAB-0-007,Lousã - Estação,0,S1-0
+S2,SAB,S2-SAB-0-008,Serpins,0,S2-0
+S1,SAB,S1-SAB-0-009,Lousã - Estação,0,S1-0
+S2,SAB,S2-SAB-0-010,Serpins,0,S2-0
+S1,SAB,S1-SAB-0-011,Lousã - Estação,0,S1-0
+S2,SAB,S2-SAB-0-012,Serpins,0,S2-0
+S1,SAB,S1-SAB-0-013,Lousã - Estação,0,S1-0
+S2,SAB,S2-SAB-0-014,Serpins,0,S2-0
+S1,SAB,S1-SAB-0-015,Lousã - Estação,0,S1-0
+S2,SAB,S2-SAB-0-016,Serpins,0,S2-0
+S1,SAB,S1-SAB-0-017,Lousã - Estação,0,S1-0
+S2,SAB,S2-SAB-0-018,Serpins,0,S2-0
+S1,SAB,S1-SAB-0-019,Serpins,0,S1-0
+S2,SAB,S2-SAB-0-020,Serpins,0,S2-0
+S1,SAB,S1-SAB-0-021,Serpins,0,S1-0
+S2,SAB,S2-SAB-0-022,Serpins,0,S2-0
+S1,SAB,S1-SAB-0-023,Serpins,0,S1-0
+S2,SAB,S2-SAB-0-024,Serpins,0,S2-0
+S1,SAB,S1-SAB-0-025,Serpins,0,S1-0
+S2,SAB,S2-SAB-0-026,Serpins,0,S2-0
+S1,SAB,S1-SAB-0-027,Serpins,0,S1-0
+S1,SAB,S1-SAB-1-001,Coimbra B,1,S1-1
+S2,SAB,S2-SAB-1-002,República,1,S2-1
+S1,SAB,S1-SAB-1-003,Coimbra B,1,S1-1
+S2,SAB,S2-SAB-1-004,República,1,S2-1
+S1,SAB,S1-SAB-1-005,Coimbra B,1,S1-1
+S2,SAB,S2-SAB-1-006,República,1,S2-1
+S1,SAB,S1-SAB-1-007,Coimbra B,1,S1-1
+S2,SAB,S2-SAB-1-008,República,1,S2-1
+S1,SAB,S1-SAB-1-009,Coimbra B,1,S1-1
+S2,SAB,S2-SAB-1-010,República,1,S2-1
+S1,SAB,S1-SAB-1-011,Coimbra B,1,S1-1
+S2,SAB,S2-SAB-1-012,República,1,S2-1
+S1,SAB,S1-SAB-1-013,Coimbra B,1,S1-1
+S2,SAB,S2-SAB-1-014,República,1,S2-1
+S1,SAB,S1-SAB-1-015,Coimbra B,1,S1-1
+S2,SAB,S2-SAB-1-016,República,1,S2-1
+S1,SAB,S1-SAB-1-017,Coimbra B,1,S1-1
+S2,SAB,S2-SAB-1-018,República,1,S2-1
+S1,SAB,S1-SAB-1-019,Coimbra B,1,S1-1
+S2,SAB,S2-SAB-1-020,República,1,S2-1
+S1,SAB,S1-SAB-1-021,Coimbra B,1,S1-1
+S2,SAB,S2-SAB-1-022,República,1,S2-1
+S1,SAB,S1-SAB-1-023,Coimbra B,1,S1-1
+S2,SAB,S2-SAB-1-024,República,1,S2-1
+S1,SAB,S1-SAB-1-025,Coimbra B,1,S1-1
+S2,SAB,S2-SAB-1-026,República,1,S2-1
+S1,SAB,S1-SAB-1-027,Coimbra B,1,S1-1
+S1,DOM,S1-DOM-0-001,Serpins,0,S1-0
+S2,DOM,S2-DOM-0-002,Serpins,0,S2-0
+S1,DOM,S1-DOM-0-003,Serpins,0,S1-0
+S2,DOM,S2-DOM-0-004,Serpins,0,S2-0
+S1,DOM,S1-DOM-0-005,Serpins,0,S1-0
+S2,DOM,S2-DOM-0-006,Serpins,0,S2-0
+S1,DOM,S1-DOM-0-007,Serpins,0,S1-0
+S2,DOM,S2-DOM-0-008,Serpins,0,S2-0
+S1,DOM,S1-DOM-0-009,Serpins,0,S1-0
+S2,DOM,S2-DOM-0-010,Serpins,0,S2-0
+S1,DOM,S1-DOM-0-011,Serpins,0,S1-0
+S2,DOM,S2-DOM-0-012,Serpins,0,S2-0
+S1,DOM,S1-DOM-0-013,Serpins,0,S1-0
+S2,DOM,S2-DOM-0-014,Serpins,0,S2-0
+S1,DOM,S1-DOM-0-015,Serpins,0,S1-0
+S2,DOM,S2-DOM-0-016,Serpins,0,S2-0
+S1,DOM,S1-DOM-0-017,Serpins,0,S1-0
+S2,DOM,S2-DOM-0-018,Serpins,0,S2-0
+S1,DOM,S1-DOM-0-019,Serpins,0,S1-0
+S1,DOM,S1-DOM-0-020,Serpins,0,S1-0
+S1,DOM,S1-DOM-1-001,Coimbra B,1,S1-1
+S2,DOM,S2-DOM-1-002,República,1,S2-1
+S1,DOM,S1-DOM-1-003,Coimbra B,1,S1-1
+S2,DOM,S2-DOM-1-004,República,1,S2-1
+S1,DOM,S1-DOM-1-005,Coimbra B,1,S1-1
+S2,DOM,S2-DOM-1-006,República,1,S2-1
+S1,DOM,S1-DOM-1-007,Coimbra B,1,S1-1
+S2,DOM,S2-DOM-1-008,República,1,S2-1
+S1,DOM,S1-DOM-1-009,Coimbra B,1,S1-1
+S2,DOM,S2-DOM-1-010,República,1,S2-1
+S1,DOM,S1-DOM-1-011,Coimbra B,1,S1-1
+S2,DOM,S2-DOM-1-012,República,1,S2-1
+S1,DOM,S1-DOM-1-013,Coimbra B,1,S1-1
+S2,DOM,S2-DOM-1-014,República,1,S2-1
+S1,DOM,S1-DOM-1-015,Coimbra B,1,S1-1
+S2,DOM,S2-DOM-1-016,República,1,S2-1
+S1,DOM,S1-DOM-1-017,Coimbra B,1,S1-1
+S2,DOM,S2-DOM-1-018,República,1,S2-1
+S1,DOM,S1-DOM-1-019,Coimbra B,1,S1-1
+S2,DOM,S2-DOM-1-020,República,1,S2-1
+U1,DU,U1-DU-0-freq,Vale das Flores,0,U1-0
+U1,SAB,U1-SAB-0-freq,Vale das Flores,0,U1-0
+U1,DOM,U1-DOM-0-freq,Vale das Flores,0,U1-0
+U1,DU,U1-DU-1-freq,Coimbra B,1,U1-1
+U1,SAB,U1-SAB-1-freq,Coimbra B,1,U1-1
+U1,DOM,U1-DOM-1-freq,Coimbra B,1,U1-1
+U2,DU,U2-DU-0-freq,Vale das Flores,0,U2-0
+U2,SAB,U2-SAB-0-freq,Vale das Flores,0,U2-0
+U2,DOM,U2-DOM-0-freq,Vale das Flores,0,U2-0
+U2,DU,U2-DU-1-freq,República,1,U2-1
+U2,SAB,U2-SAB-1-freq,República,1,U2-1
+U2,DOM,U2-DOM-1-freq,República,1,U2-1
+U3,DU,U3-DU-1-freq,Coimbra B,1,U3-1
+U3,SAB,U3-SAB-1-freq,Coimbra B,1,U3-1
+U3,DOM,U3-DOM-1-freq,Coimbra B,1,U3-1
+U3,DU,U3-DU-0-freq,República,0,U3-0
+U3,SAB,U3-SAB-0-freq,República,0,U3-0
+U3,DOM,U3-DOM-0-freq,República,0,U3-0

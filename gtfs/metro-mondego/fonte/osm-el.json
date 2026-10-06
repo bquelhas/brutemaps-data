@@ -1,0 +1,191 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.4 2390de5a",
+  "osm3s": {
+    "timestamp_osm_base": "2026-10-06T20:10:55Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "relation",
+  "id": 19653947,
+  "tags": {
+    "colour": "#006AD1",
+    "duration": "00:13",
+    "from": "Portagem",
+    "name": "MM U1: Vale das Flores → Coimbra-B",
+    "network": "Metro Mondego",
+    "opening_hours": "Mo-Su 8:00-20:00",
+    "operator": "Metro Mondego",
+    "public_transport:version": "2",
+    "ref": "U1",
+    "roundtrip": "no",
+    "route": "bus",
+    "to": "Vale das Flores",
+    "type": "route",
+    "website": "https://metromondego.pt",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 21240141,
+  "tags": {
+    "colour": "#006AD1",
+    "from": "Coimbra-B",
+    "name": "MM S1: Coimbra-B => Serpins",
+    "network": "Metro Mondego",
+    "operator": "Metro Mondego",
+    "public_transport:version": "2",
+    "ref": "S1",
+    "route": "bus",
+    "to": "Serpins",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 21240142,
+  "tags": {
+    "colour": "#006AD1",
+    "from": "Serpins",
+    "name": "MM S1: Serpins => Coimbra-B",
+    "network": "Metro Mondego",
+    "operator": "Metro Mondego",
+    "public_transport:version": "2",
+    "ref": "S1",
+    "route": "bus",
+    "to": "Coimbra-B",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 21409151,
+  "tags": {
+    "colour": "#006AD1",
+    "from": "Coimbra-B",
+    "name": "MM U1: Coimbra-B → Vale das Flores",
+    "network": "Metro Mondego",
+    "opening_hours": "Mo-Su 05:00-00:40",
+    "operator": "Metro Mondego",
+    "public_transport:version": "2",
+    "ref": "U1",
+    "route": "bus",
+    "to": "Vale das Flores",
+    "type": "route",
+    "via": "Sistema de Mobilidade do Mondego",
+    "website": "https://metromondego.pt",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 21409406,
+  "tags": {
+    "colour": "#FB0000",
+    "from": "Vale das Flores",
+    "name": "MM U2: Vale das Flores → República",
+    "network": "Metro Mondego",
+    "opening_hours": "Mo-Fr 5:47-00:02",
+    "operator": "Metro Mondego",
+    "public_transport:version": "2",
+    "ref": "U2",
+    "route": "bus",
+    "to": "República",
+    "type": "route",
+    "website": "https://metromondego.pt",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 21409407,
+  "tags": {
+    "colour": "#FB0000",
+    "from": "República",
+    "name": "MM U2: República → Vale das Flores",
+    "network": "Metro Mondego",
+    "opening_hours": "Mo-Fr 6:35-00:22",
+    "operator": "Metro Mondego",
+    "public_transport:version": "2",
+    "ref": "U2",
+    "route": "bus",
+    "to": "Vale das Flores",
+    "type": "route",
+    "website": "https://metromondego.pt",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 21417392,
+  "tags": {
+    "colour": "#2FCC4B",
+    "from": "Coimbra-B",
+    "name": "MM U3: Coimbra-B → República",
+    "network": "Metro Mondego",
+    "operator": "Metro Mondego",
+    "public_transport:version": "2",
+    "ref": "U3",
+    "route": "bus",
+    "to": "República",
+    "type": "route",
+    "website": "https://metromondego.pt",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 21417393,
+  "tags": {
+    "colour": "#2FCC4B",
+    "from": "República",
+    "name": "MM U3: República → Coimbra-B",
+    "network": "Metro Mondego",
+    "operator": "Metro Mondego",
+    "public_transport:version": "2",
+    "ref": "U3",
+    "route": "bus",
+    "to": "Coimbra-B",
+    "type": "route",
+    "website": "https://metromondego.pt",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 21418635,
+  "tags": {
+    "colour": "#FB0000",
+    "from": "Serpins",
+    "name": "MM S2: Serpins => República",
+    "network": "Metro Mondego",
+    "operator": "Metro Mondego",
+    "public_transport:version": "2",
+    "ref": "S2",
+    "route": "bus",
+    "to": "República",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 21418636,
+  "tags": {
+    "colour": "#FB0000",
+    "from": "República",
+    "name": "MM S2: República => Serpins",
+    "network": "Metro Mondego",
+    "operator": "Metro Mondego",
+    "public_transport:version": "2",
+    "ref": "S2",
+    "route": "bus",
+    "to": "Serpins",
+    "type": "route"
+  }
+}
+
+  ]
+}

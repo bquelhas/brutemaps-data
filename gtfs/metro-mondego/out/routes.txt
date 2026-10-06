@@ -1,0 +1,6 @@
+route_id,agency_id,route_short_name,route_long_name,route_type,route_color,route_text_color,route_desc
+S1,MM,S1,Coimbra-B – Serpins,3,006AD1,FFFFFF,Metrobus
+S2,MM,S2,República – Serpins,3,FB0000,FFFFFF,Metrobus
+U1,MM,U1,Coimbra-B – Vale das Flores,3,006AD1,FFFFFF,Metrobus
+U2,MM,U2,República – Vale das Flores,3,FB0000,FFFFFF,Metrobus
+U3,MM,U3,Coimbra-B – República,3,2FCC4B,FFFFFF,Metrobus

@@ -1,0 +1,2 @@
+feed_publisher_name,feed_publisher_url,feed_lang,feed_start_date,feed_end_date,feed_version,feed_contact_url
+"brute maps (não oficial; horários do Metro Mondego, traçado © contribuidores do OpenStreetMap, ODbL)",https://github.com/bquelhas/brutemaps-data,pt,20260910,20270331,2026-10-06,https://github.com/bquelhas/brutemaps-data/issues
