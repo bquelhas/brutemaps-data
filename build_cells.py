@@ -4,7 +4,8 @@ mais de 6 dias. A app lê daqui primeiro e só vai ao Overpass se a quadrícula 
 import json, math, os, sys, time, urllib.parse, urllib.request
 
 CELL = 0.2
-SERVERS = ["https://overpass-api.de/api/interpreter", "https://maps.mail.ru/osm/tools/overpass/api/interpreter"]
+SERVERS = ["https://overpass.private.coffee/api/interpreter", "https://overpass-api.de/api/interpreter",
+           "https://overpass.kumi.systems/api/interpreter", "https://maps.mail.ru/osm/tools/overpass/api/interpreter"]
 MAX_AGE = 6 * 24 * 3600
 BUDGET = float(os.environ.get("BUDGET_S", "18000"))  # pára antes do limite do GitHub Actions
 start = time.time()
@@ -40,26 +41,32 @@ def query(lat, lon):
     return None
 
 os.makedirs("cells", exist_ok=True)
-todo = set()
+todo = []  # pela ordem de cities.txt (Porto primeiro), não por coordenadas
 for line in open("cities.txt"):
     line = line.split("#")[0].strip()
     if not line:
         continue
     name, lat, lon, r = [x.strip() for x in line.split(",")]
-    todo |= cells_for(float(lat), float(lon), float(r))
-todo = sorted(todo)
+    todo += [c for c in sorted(cells_for(float(lat), float(lon), float(r))) if c not in todo]
+
+def age(path):
+    # a data do ficheiro num checkout é sempre "agora": a idade vem do campo t
+    try:
+        return time.time() - json.load(open(path)).get("t", 0)
+    except Exception:
+        return float("inf")
 done = 0
 for lat, lon in todo:
     if time.time() - start > BUDGET:
         print("fim do tempo; o resto fica para a próxima"); break
     path = "cells/%.1f_%.1f.json" % (lat, lon)
-    if os.path.exists(path) and time.time() - os.path.getmtime(path) < MAX_AGE:
+    if age(path) < MAX_AGE:
         continue
     body = query(lat, lon)
     if body:
         # sem as chaves inúteis à app (menos peso)
         d = json.loads(body)
-        open(path, "w").write(json.dumps({"elements": d.get("elements", [])}, separators=(",", ":")))
+        open(path, "w").write(json.dumps({"t": int(time.time()), "elements": d.get("elements", [])}, separators=(",", ":")))
         done += 1
         print("ok", path)
     time.sleep(3)
