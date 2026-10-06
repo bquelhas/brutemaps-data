@@ -1,0 +1,25 @@
+name: Estabelecimentos (Overture) para o R2
+on:
+  schedule: [{ cron: "0 4 2 * *" }]
+  workflow_dispatch: {}
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install duckdb
+      - run: python build_places.py
+      # ficheiros guardados comprimidos e servidos com Content-Encoding: gzip (a app descomprime sozinha)
+      - run: |
+          aws s3 sync out "s3://$R2_BUCKET/places" --endpoint-url "$R2_ENDPOINT" \
+            --content-encoding gzip --content-type "text/tab-separated-values; charset=utf-8" \
+            --cache-control "public, max-age=604800" --delete --only-show-errors
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
