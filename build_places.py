@@ -1,7 +1,13 @@
-"""Estabelecimentos da Overture Maps (mundo) por quadrícula de 0,2°: places/<lat>_<lon>.tsv
-(nome, categoria, lat, lon, rua, localidade), comprimidos. Lê os parquet públicos da Overture
-diretamente do S3 com o DuckDB, sem os descarregar todos."""
-import duckdb, gzip, os, sys, time, urllib.request, re
+"""Estabelecimentos (mundo) por quadrícula de 0,2°: places/<lat>_<lon>.tsv
+(nome, categoria, lat, lon, rua, localidade, horário), comprimidos.
+
+Duas fontes abertas:
+  - AllThePlaces (CC0, todas as semanas): cadeias e marcas, tiradas dos sites das próprias marcas
+    — posição, nome oficial e horário bons. Tem prioridade.
+  - Overture Maps (CDLA-Permissive): a cobertura geral (cafés, lojas independentes…).
+Quando os dois têm o mesmo sítio (nome igual ou muito parecido a menos de ~100 m), fica o do
+AllThePlaces. A Overture lê-se do S3 com o DuckDB; o AllThePlaces vem num zip de GeoJSON."""
+import duckdb, gzip, io, json, os, sys, time, urllib.request, re, zipfile
 
 def latest_release():
     xml = urllib.request.urlopen("https://overturemaps-us-west-2.s3.amazonaws.com/?list-type=2&prefix=release/&delimiter=/").read().decode()
@@ -22,9 +28,61 @@ SELECT replace(replace(names."primary", chr(9), ' '), chr(10), ' ') AS name,
 FROM read_parquet('s3://overturemaps-us-west-2/release/{rel}/theme=places/type=place/*', hive_partitioning=1)
 WHERE confidence >= 0.5 AND names."primary" IS NOT NULL AND coalesce(operating_status, 'open') = 'open'
 """)
-print("linhas", con.execute("select count(*) from p").fetchone()[0], flush=True)
+print("overture", con.execute("select count(*) from p").fetchone()[0], flush=True)
+
+# --- AllThePlaces: último run com o zip publicado
+def clean(v):
+    return re.sub(r"[\t\r\n]+", " ", str(v or "")).strip()
+
+atp_rows = 0
+try:
+    run = json.load(urllib.request.urlopen("https://data.alltheplaces.xyz/runs/latest.json"))
+    print("atp", run["run_id"], flush=True)
+    urllib.request.urlretrieve(run["output_url"], "/tmp/atp.zip")
+    CAT_KEYS = ("shop", "amenity", "tourism", "leisure", "office", "craft", "healthcare")
+    with zipfile.ZipFile("/tmp/atp.zip") as z, open("/tmp/atp.tsv", "w") as out:
+        for n in z.namelist():
+            if not n.endswith(".geojson"):
+                continue
+            try:
+                feats = json.loads(z.read(n)).get("features", [])
+            except Exception:
+                continue
+            for f in feats:
+                g = f.get("geometry") or {}
+                if g.get("type") != "Point":
+                    continue
+                lon, lat = g["coordinates"][:2]
+                pr = f.get("properties") or {}
+                name = clean(pr.get("name") or pr.get("brand"))
+                if not name or not (-90 <= lat <= 90 and -180 <= lon <= 180):
+                    continue
+                cat = next((clean(pr[k]) for k in CAT_KEYS if pr.get(k)), "")
+                street = clean(pr.get("addr:street_address") or " ".join(x for x in (clean(pr.get("addr:street")), clean(pr.get("addr:housenumber"))) if x) or pr.get("addr:full"))
+                out.write("\t".join([name, cat, f"{lat:.6f}", f"{lon:.6f}", street, clean(pr.get("addr:city")), clean(pr.get("opening_hours"))]) + "\n")
+                atp_rows += 1
+    os.remove("/tmp/atp.zip")
+    con.execute("""CREATE TABLE a AS SELECT name, cat, lat, lon, street, city, hours,
+        printf('%.1f_%.1f', floor(lat / 0.2) * 0.2, floor(lon / 0.2) * 0.2) AS cell
+        FROM read_csv('/tmp/atp.tsv', delim=chr(9), header=false, quote='', escape='',
+          columns={'name':'VARCHAR','cat':'VARCHAR','lat':'DOUBLE','lon':'DOUBLE','street':'VARCHAR','city':'VARCHAR','hours':'VARCHAR'})""")
+    print("atp linhas", atp_rows, flush=True)
+    # a Overture perde os repetidos (mesma quadrícula, ~100 m, nome igual/contido/parecido)
+    con.execute("""DELETE FROM p WHERE rowid IN (
+        SELECT p.rowid FROM p JOIN a ON p.cell = a.cell
+         AND abs(p.lat - a.lat) < 0.0009 AND abs(p.lon - a.lon) < 0.0012
+         AND (lower(p.name) = lower(a.name) OR strpos(lower(p.name), lower(a.name)) > 0
+              OR strpos(lower(a.name), lower(p.name)) > 0 OR jaro_winkler_similarity(lower(p.name), lower(a.name)) > 0.88))""")
+    print("overture sem repetidos", con.execute("select count(*) from p").fetchone()[0], flush=True)
+except Exception as e:
+    # sem AllThePlaces este mês: fica só a Overture (melhor do que nada)
+    print("AllThePlaces falhou:", e, flush=True)
+    con.execute("CREATE TABLE a (name VARCHAR, cat VARCHAR, lat DOUBLE, lon DOUBLE, street VARCHAR, city VARCHAR, hours VARCHAR, cell VARCHAR)")
 os.makedirs("out", exist_ok=True)
-cur = con.execute("select cell, name, cat, lat, lon, street, city from p order by cell")
+# o AllThePlaces primeiro dentro de cada quadrícula
+cur = con.execute("""select cell, name, cat, lat, lon, street, city, hours from (
+    select cell, name, cat, lat, lon, street, city, hours, 0 as src from a
+    union all select cell, name, cat, lat, lon, street, city, '' as hours, 1 as src from p) order by cell, src""")
 cell, buf, n = None, [], 0
 def flush():
     global n
@@ -36,9 +94,9 @@ def flush():
 while True:
     rows = cur.fetchmany(200000)
     if not rows: break
-    for c, name, cat, lat, lon, st, ci in rows:
+    for c, name, cat, lat, lon, st, ci, hrs in rows:
         if c != cell:
             flush(); cell, buf = c, []
-        buf.append(f"{name}\t{cat}\t{lat}\t{lon}\t{st}\t{ci}")
+        buf.append(f"{name}\t{cat}\t{lat}\t{lon}\t{st}\t{ci}\t{hrs}")
 flush()
 print("quadrículas", n)

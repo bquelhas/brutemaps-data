@@ -1,6 +1,6 @@
-name: Estabelecimentos (Overture) para o R2
+name: Estabelecimentos (AllThePlaces + Overture) para o R2
 on:
-  schedule: [{ cron: "0 4 2 * *" }]
+  schedule: [{ cron: "0 4 * * 1" }]  # semanal: o AllThePlaces sai todas as semanas
   workflow_dispatch: {}
 jobs:
   build:
