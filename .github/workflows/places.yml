@@ -17,7 +17,7 @@ jobs:
       # menos pedidos em paralelo, retry adaptativo com muitas tentativas, só o que mudou de tamanho
       # (--size-only) e repete o sync; o último teste propaga a falha se todas as tentativas falharem.
       - run: |
-          aws configure set default.s3.max_concurrent_requests 6
+          aws configure set default.s3.max_concurrent_requests 16
           aws configure set default.retry_mode adaptive
           aws configure set default.max_attempts 25
           ok=0
