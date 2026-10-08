@@ -5,18 +5,31 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 300
+    timeout-minutes: 350
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
       - run: pip install duckdb
       - run: python build_places.py
-      # ficheiros guardados comprimidos e servidos com Content-Encoding: gzip (a app descomprime sozinha)
+      # ficheiros guardados comprimidos e servidos com Content-Encoding: gzip (a app descomprime sozinha).
+      # O R2 corta rajadas de escrita (503 "Reduce your concurrent request rate for the same object"):
+      # menos pedidos em paralelo, retry adaptativo com muitas tentativas, só o que mudou de tamanho
+      # (--size-only) e repete o sync; o último teste propaga a falha se todas as tentativas falharem.
       - run: |
-          aws s3 sync out "s3://$R2_BUCKET/places" --endpoint-url "$R2_ENDPOINT" \
-            --content-encoding gzip --content-type "text/tab-separated-values; charset=utf-8" \
-            --cache-control "public, max-age=604800" --delete --only-show-errors
+          aws configure set default.s3.max_concurrent_requests 6
+          aws configure set default.retry_mode adaptive
+          aws configure set default.max_attempts 25
+          ok=0
+          for i in 1 2 3 4; do
+            if aws s3 sync out "s3://$R2_BUCKET/places" --endpoint-url "$R2_ENDPOINT" \
+                 --content-encoding gzip --content-type "text/tab-separated-values; charset=utf-8" \
+                 --cache-control "public, max-age=604800" --delete --size-only --no-progress --only-show-errors; then
+              echo "sync ok (tentativa $i)"; ok=1; break
+            fi
+            echo "sync falhou (tentativa $i); a repetir em 60 s"; sleep 60
+          done
+          test "$ok" = 1
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}

@@ -7,7 +7,7 @@ Duas fontes abertas:
   - Overture Maps (CDLA-Permissive): a cobertura geral (cafés, lojas independentes…).
 Quando os dois têm o mesmo sítio (nome igual ou muito parecido a menos de ~100 m), fica o do
 AllThePlaces. A Overture lê-se do S3 com o DuckDB; o AllThePlaces vem num zip de GeoJSON."""
-import duckdb, gzip, io, json, os, sys, time, urllib.request, re, zipfile
+import duckdb, gzip, io, json, os, shutil, sys, time, urllib.request, re, zipfile
 
 def latest_release():
     xml = urllib.request.urlopen("https://overturemaps-us-west-2.s3.amazonaws.com/?list-type=2&prefix=release/&delimiter=/").read().decode()
@@ -36,9 +36,14 @@ def clean(v):
 
 atp_rows = 0
 try:
-    run = json.load(urllib.request.urlopen("https://data.alltheplaces.xyz/runs/latest.json"))
+    # o data.alltheplaces.xyz responde 403 ao User-Agent do urllib: manda-se um próprio
+    _ua = {"User-Agent": "brutemaps-data/1.0 (+https://github.com/bquelhas/brutemaps-data)"}
+    def _get(url):
+        return urllib.request.urlopen(urllib.request.Request(url, headers=_ua))
+    run = json.load(_get("https://data.alltheplaces.xyz/runs/latest.json"))
     print("atp", run["run_id"], flush=True)
-    urllib.request.urlretrieve(run["output_url"], "/tmp/atp.zip")
+    with _get(run["output_url"]) as r, open("/tmp/atp.zip", "wb") as f:
+        shutil.copyfileobj(r, f)
     CAT_KEYS = ("shop", "amenity", "tourism", "leisure", "office", "craft", "healthcare")
     with zipfile.ZipFile("/tmp/atp.zip") as z, open("/tmp/atp.tsv", "w") as out:
         for n in z.namelist():
