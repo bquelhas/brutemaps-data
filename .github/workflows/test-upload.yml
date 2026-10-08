@@ -3,23 +3,24 @@ on: { workflow_dispatch: {} }
 jobs:
   t:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - run: |
           mkdir -p out
-          for i in $(seq 1 3000); do printf 'a\tb\t1\t2\tc\td\n' > "out/cell_$i.tsv"; done
-          ls out | wc -l
-          aws configure set default.s3.max_concurrent_requests 6
+          for i in $(seq 1 12000); do printf 'a\tb\t1\t2\tc\td\n' > "out/cell_$i.tsv"; done
+          n=$(ls out | wc -l); echo "ficheiros=$n"
+          aws configure set default.s3.max_concurrent_requests 16
           aws configure set default.retry_mode adaptive
           aws configure set default.max_attempts 25
           ok=0
           for i in 1 2 3 4; do
+            t0=$(date +%s)
             if aws s3 sync out "s3://$R2_BUCKET/places-test" --endpoint-url "$R2_ENDPOINT" \
                  --content-encoding gzip --content-type "text/tab-separated-values; charset=utf-8" \
                  --delete --size-only --no-progress --only-show-errors; then
-              echo "TESTE: sync ok (tentativa $i)"; ok=1; break
+              t1=$(date +%s); echo "TESTE: sync ok tentativa $i em $((t1-t0))s"; ok=1; break
             fi
-            echo "TESTE: tentativa $i falhou; 30 s"; sleep 30
+            t1=$(date +%s); echo "TESTE: tentativa $i falhou em $((t1-t0))s; 20 s"; sleep 20
           done
           aws s3 rm "s3://$R2_BUCKET/places-test" --recursive --endpoint-url "$R2_ENDPOINT" --only-show-errors || true
           test "$ok" = 1
