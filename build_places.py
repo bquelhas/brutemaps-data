@@ -1,4 +1,4 @@
-"""Estabelecimentos (mundo) por quadrícula de 0,2°: places/<lat>_<lon>.tsv
+"""Estabelecimentos por quadrícula de 0,2° (âmbito em BOUNDS): places/<lat>_<lon>.tsv
 (nome, categoria, lat, lon, rua, localidade, horário), comprimidos.
 
 Duas fontes abertas:
@@ -9,6 +9,16 @@ Quando os dois têm o mesmo sítio (nome igual ou muito parecido a menos de ~100
 AllThePlaces. A Overture lê-se do S3 com o DuckDB; o AllThePlaces vem num zip de GeoJSON."""
 import duckdb, gzip, io, json, os, shutil, sys, time, urllib.request, re, zipfile
 
+# Âmbito: a Overture no mundo inteiro dava ~178 mil quadrículas (~50 GB no R2, acima dos 10 GB
+# grátis) e uploads de horas. Gera-se só onde a app é usada; caixas (lat_min, lon_min, lat_max,
+# lon_max) — acrescentar as que fizerem falta. Lista vazia = mundo inteiro.
+BOUNDS = [
+    (35.8, -10.0, 44.0, 4.6),   # Península Ibérica (Portugal, Espanha, Baleares)
+]
+def in_bounds(lat, lon):
+    return (not BOUNDS) or any(a <= lat <= c and b <= lon <= d for a, b, c, d in BOUNDS)
+
+
 def latest_release():
     xml = urllib.request.urlopen("https://overturemaps-us-west-2.s3.amazonaws.com/?list-type=2&prefix=release/&delimiter=/").read().decode()
     return sorted(set(re.findall(r"release/(20\d\d-\d\d-\d\d\.\d+)", xml)))[-1]
@@ -17,6 +27,8 @@ rel = os.environ.get("OVERTURE_RELEASE") or latest_release()
 print("release", rel, flush=True)
 con = duckdb.connect()
 con.execute("INSTALL httpfs; LOAD httpfs; INSTALL spatial; LOAD spatial; SET s3_region='us-west-2'; SET memory_limit='10GB'; SET temp_directory='/tmp/duck';")
+bounds = '' if not BOUNDS else ' AND (' + ' OR '.join(
+    f'(ST_Y(geometry) BETWEEN {a} AND {c} AND ST_X(geometry) BETWEEN {b} AND {d})' for a, b, c, d in BOUNDS) + ')'
 con.execute(f"""
 CREATE TABLE p AS
 SELECT replace(replace(names."primary", chr(9), ' '), chr(10), ' ') AS name,
@@ -26,7 +38,7 @@ SELECT replace(replace(names."primary", chr(9), ' '), chr(10), ' ') AS name,
        replace(coalesce(addresses[1].locality, ''), chr(9), ' ') AS city,
        printf('%.1f_%.1f', floor(ST_Y(geometry) / 0.2) * 0.2, floor(ST_X(geometry) / 0.2) * 0.2) AS cell
 FROM read_parquet('s3://overturemaps-us-west-2/release/{rel}/theme=places/type=place/*', hive_partitioning=1)
-WHERE confidence >= 0.5 AND names."primary" IS NOT NULL AND coalesce(operating_status, 'open') = 'open'
+WHERE confidence >= 0.5 AND names."primary" IS NOT NULL AND coalesce(operating_status, 'open') = 'open'{bounds}
 """)
 print("overture", con.execute("select count(*) from p").fetchone()[0], flush=True)
 
@@ -60,7 +72,7 @@ try:
                 lon, lat = g["coordinates"][:2]
                 pr = f.get("properties") or {}
                 name = clean(pr.get("name") or pr.get("brand"))
-                if not name or not (-90 <= lat <= 90 and -180 <= lon <= 180):
+                if not name or not (-90 <= lat <= 90 and -180 <= lon <= 180) or not in_bounds(lat, lon):
                     continue
                 cat = next((clean(pr[k]) for k in CAT_KEYS if pr.get(k)), "")
                 street = clean(pr.get("addr:street_address") or " ".join(x for x in (clean(pr.get("addr:street")), clean(pr.get("addr:housenumber"))) if x) or pr.get("addr:full"))
