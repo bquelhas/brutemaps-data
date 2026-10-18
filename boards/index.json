@@ -1,0 +1,104 @@
+{
+ "generated": "2026-10-18",
+ "networks": [
+  {
+   "id": "cim-cavado-1",
+   "name": "CIM do Cávado",
+   "licence": "CC-BY 4.0 (Minho Access Point)",
+   "bbox": [
+    41.1752,
+    -8.8402,
+    41.7666,
+    -8.2933
+   ]
+  },
+  {
+   "id": "cim-cavado-2",
+   "name": "CIM do Cávado",
+   "licence": "CC-BY 4.0 (Minho Access Point)",
+   "bbox": [
+    41.5438,
+    -8.5922,
+    41.8519,
+    -8.1298
+   ]
+  },
+  {
+   "id": "guimabus",
+   "name": "Guimabus",
+   "licence": "CC-BY 4.0 (Minho Access Point)",
+   "bbox": [
+    41.3653,
+    -8.4275,
+    41.5394,
+    -8.2283
+   ]
+  },
+  {
+   "id": "barcelos",
+   "name": "Barcelos",
+   "licence": "CC-BY 4.0 (Minho Access Point)",
+   "bbox": [
+    41.4153,
+    -8.7561,
+    41.6537,
+    -8.5118
+   ]
+  },
+  {
+   "id": "famalicao",
+   "name": "V. N. de Famalicão",
+   "licence": "CC-BY 4.0 (Minho Access Point)",
+   "bbox": [
+    41.3004,
+    -8.6238,
+    41.4774,
+    -8.3242
+   ]
+  },
+  {
+   "id": "sit-coimbra",
+   "name": "SIT Região de Coimbra",
+   "licence": "dados abertos (Busway)",
+   "bbox": [
+    39.8616,
+    -8.8992,
+    40.5148,
+    -7.7037
+   ]
+  },
+  {
+   "id": "cira",
+   "name": "Região de Aveiro (Busway)",
+   "licence": "dados abertos (Busway)",
+   "bbox": [
+    40.1566,
+    -8.8431,
+    40.9795,
+    -8.2473
+   ]
+  },
+  {
+   "id": "tamega-sousa",
+   "name": "Tâmega e Sousa",
+   "licence": "dados abertos (CIM Tâmega e Sousa)",
+   "bbox": [
+    37.014,
+    -9.4182,
+    42.0247,
+    -6.829
+   ]
+  },
+  {
+   "id": "smtuc",
+   "name": "SMTUC",
+   "licence": "dados.gov.pt",
+   "bbox": [
+    40.1079,
+    -8.5509,
+    40.3492,
+    -8.3541
+   ]
+  }
+ ]
+}

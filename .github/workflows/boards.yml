@@ -1,0 +1,20 @@
+name: Painéis de paragens (GTFS fora do Transitous)
+on:
+  schedule: [{ cron: "0 2 * * *" }]  # diário: a janela de dias ativos anda e os feeds mudam sem aviso
+  workflow_dispatch: {}
+permissions: { contents: write }
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: python build_boards.py
+      - run: |
+          git config user.name "brutemaps-data"
+          git config user.email "neo.quelhas@gmail.com"
+          git add boards
+          git commit -m "Painéis atualizados $(date -u +%F)" || echo "nada novo"
+          git push
