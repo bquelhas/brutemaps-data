@@ -13,3 +13,8 @@ partidas por quadrícula de 0,02°) e `s/<linha>_<sentido>.txt` (traçado, polyl
 Fontes: Minho Access Point (CIM do Cávado, Guimabus, Barcelos, V. N. de Famalicão — **CC-BY 4.0**),
 Busway (SIT Região de Coimbra, CIRA Região de Aveiro), CIM do Tâmega e Sousa, SMTUC (dados.gov.pt).
 Os dados são dos operadores; aqui só mudam de formato.
+
+### Zonas tarifárias (`boards/zones/`)
+`build_zones.py`: zonas Andante (Porto) desenhadas a partir da zona de cada paragem do metro e da STCP
+(OTP da Porto Digital, CC0): células de Voronoi cortadas a 1,2 km, juntas por zona. **Aproximadas** —
+a fronteira oficial é entre paragens, não uma linha no terreno.
