@@ -25,8 +25,11 @@ def latest_release():
 
 rel = os.environ.get("OVERTURE_RELEASE") or latest_release()
 print("release", rel, flush=True)
+# 26 OUT 2026: com memory_limit 10 GB (de 16 na máquina do GitHub) mais o AllThePlaces em Python, a
+# versão 2026-10-21.0 do Overture deixou a máquina sem memória ("runner lost communication").
+# 6 GB e 3 threads: o DuckDB despeja para o disco (/tmp/duck) em vez de rebentar.
 con = duckdb.connect()
-con.execute("INSTALL httpfs; LOAD httpfs; INSTALL spatial; LOAD spatial; SET s3_region='us-west-2'; SET memory_limit='10GB'; SET temp_directory='/tmp/duck';")
+con.execute("INSTALL httpfs; LOAD httpfs; INSTALL spatial; LOAD spatial; SET s3_region='us-west-2'; SET memory_limit='6GB'; SET threads=3; SET preserve_insertion_order=false; SET temp_directory='/tmp/duck';")
 bounds = '' if not BOUNDS else ' AND (' + ' OR '.join(
     f'(ST_Y(geometry) BETWEEN {a} AND {c} AND ST_X(geometry) BETWEEN {b} AND {d})' for a, b, c, d in BOUNDS) + ')'
 con.execute(f"""
