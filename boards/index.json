@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-02",
+ "generated": "2026-11-03",
  "networks": [
   {
    "id": "cim-cavado-1",
@@ -72,10 +72,10 @@
    "name": "Região de Aveiro (Busway)",
    "licence": "dados abertos (Busway)",
    "bbox": [
-    40.1566,
-    -8.8431,
-    40.9795,
-    -8.2473
+    40.1483,
+    -8.8491,
+    41.0452,
+    -8.1708
    ]
   },
   {
