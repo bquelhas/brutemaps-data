@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-13",
+ "generated": "2026-11-14",
  "networks": [
   {
    "id": "cim-cavado-1",
@@ -87,17 +87,6 @@
     -9.4182,
     42.0247,
     -6.829
-   ]
-  },
-  {
-   "id": "smtuc",
-   "name": "SMTUC",
-   "licence": "dados.gov.pt",
-   "bbox": [
-    40.1079,
-    -8.5509,
-    40.3492,
-    -8.3541
    ]
   }
  ]
