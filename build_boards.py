@@ -203,7 +203,7 @@ def build(net, today):
         head = (t.get("trip_headsign") or "").strip().rstrip("*") or last
         li, hi, si = line_of(t["route_id"]), ix(heads, head_ix, head), ix(svcs, svc_ix, t["service_id"])
         if net.get("trips"):
-            vtrips[li][trip_key(tid)].append((sts[0][2], [(sid, s) for _, sid, s, _ in sts]))
+            vtrips[li][trip_key(tid)].append((sts[0][2], tuple((sid, s) for _, sid, s, _ in sts), si, hi))
         for _, sid, s, pick in sts[:-1]:  # na última paragem não se apanha
             if pick != "1":
                 deps[sid].append([li, hi, s, si])
@@ -230,7 +230,8 @@ def build(net, today):
                 f.write(encode(simplify(p)))
 
     # viagens por linha (para acertar as horas pelos autocarros ao vivo): v/<linha>.json
-    # {"s": [[id, lat, lon]…], "t": {viagem: [[partida, [[i_paragem, hora]…]]…]}}
+    # {"s": [[id, lat, lon, nome]…], "t": {viagem: [[partida, [[i_paragem, hora]…], serviço, destino]…]}}
+    # (serviço = índice em meta.days; destino = índice em meta.heads)
     if vtrips:
         os.makedirs(os.path.join(out, "v"))
         for li, ts in vtrips.items():
@@ -238,9 +239,9 @@ def build(net, today):
             def si_(sid):
                 if sid not in iix:
                     iix[sid] = len(ids); st = stops.get(sid, {})
-                    ids.append([sid, round(float(st.get("stop_lat") or 0), 6), round(float(st.get("stop_lon") or 0), 6)])
+                    ids.append([sid, round(float(st.get("stop_lat") or 0), 6), round(float(st.get("stop_lon") or 0), 6), (st.get("stop_name") or "").strip()])
                 return iix[sid]
-            t_out = {k: [[s0, [[si_(sid), t] for sid, t in seq]] for s0, seq in sorted(set((a, tuple(b)) for a, b in v))] for k, v in ts.items()}
+            t_out = {k: [[s0, [[si_(sid), t] for sid, t in seq], sv, hd] for s0, seq, sv, hd in sorted(set(v))] for k, v in ts.items()}
             with open(os.path.join(out, "v", f"{li}.json"), "w") as f:
                 json.dump(dict(s=ids, t=t_out), f, separators=(",", ":"))
 
