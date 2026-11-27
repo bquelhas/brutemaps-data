@@ -134,22 +134,48 @@ def roll(z, days):
     return approx
 
 
-def osm_shelters(bbox):
-    """Paragens de autocarro do OSM com abrigo conhecido na área: [(lat, lon, 1/0)]. Falha → vazio."""
-    s, w, n, e = bbox
-    q = f'[out:json][timeout:120];node["highway"="bus_stop"]["shelter"]({s},{w},{n},{e});out;'
+def osm_shelters(bbox, step=0.1, old=()):
+    """Paragens de autocarro do OSM com abrigo conhecido na área: [(lat, lon, 1/0)]. Em quadrados de
+    [step]° (a área toda de uma vez esgota o Overpass), cada um tentado 3 vezes; um quadrado que falhe
+    fica com o que havia nele em [old] (a última resposta boa)."""
+    import time
+    s0, w0, n0, e0 = bbox
+    out = []
+    la = s0
+    while la < n0:
+        lo = w0
+        while lo < e0:
+            b = (la, lo, min(la + step, n0), min(lo + step, e0))
+            part = None
+            for attempt in range(3):
+                part = _overpass_shelters(b)
+                if part is not None:
+                    break
+                time.sleep(15 * (attempt + 1))
+            if part is None:
+                part = [x for x in old if b[0] <= x[0] < b[2] and b[1] <= x[1] < b[3]]
+                print(f"  overpass: quadrado {b} falhou — {len(part)} da última vez", file=sys.stderr)
+            out += part
+            lo += step
+        la += step
+    return out
+
+
+def _overpass_shelters(b):
+    q = f'[out:json][timeout:90];node["highway"="bus_stop"]["shelter"]({b[0]},{b[1]},{b[2]},{b[3]});out;'
     for url in ("https://overpass-api.de/api/interpreter", "https://overpass.private.coffee/api/interpreter", "https://overpass.kumi.systems/api/interpreter"):
         try:
             # o Overpass recusa User-Agents genéricos (curl → 406)
             req = urllib.request.Request(url, data=("data=" + urllib.parse.quote(q)).encode(),
                                          headers={"User-Agent": "brutemaps-data (github.com/bquelhas/brutemaps-data)"})
-            d = json.load(urllib.request.urlopen(req, timeout=180))
+            d = json.load(urllib.request.urlopen(req, timeout=120))
             if "remark" in d and "error" in d["remark"].lower():
+                print(f"  overpass {url}: {d['remark'][:80]}", file=sys.stderr)
                 continue
             return [(x["lat"], x["lon"], 1 if x["tags"].get("shelter") == "yes" else 0) for x in d["elements"]]
         except Exception as ex:
             print(f"  overpass {url}: {ex}", file=sys.stderr)
-    return []
+    return None
 
 
 def trip_key(tid):
@@ -268,7 +294,13 @@ def build(net, today):
     if net.get("shelters"):
         pts = [(float(stops[sid]["stop_lat"]), float(stops[sid]["stop_lon"])) for sid in deps if stops.get(sid, {}).get("stop_lat")]
         if pts:
-            osm = osm_shelters((min(p[0] for p in pts) - .01, min(p[1] for p in pts) - .01, max(p[0] for p in pts) + .01, max(p[1] for p in pts) + .01))
+            # o Overpass falha muitas vezes: guarda-se a última resposta (cache/, no git) para os quadrados que falhem
+            cache = os.path.join("cache", f"shelters_{net['id']}.json")
+            old = [tuple(x) for x in json.load(open(cache))] if os.path.exists(cache) else []
+            osm = osm_shelters((min(p[0] for p in pts) - .01, min(p[1] for p in pts) - .01, max(p[0] for p in pts) + .01, max(p[1] for p in pts) + .01), old=old)
+            if osm:
+                os.makedirs("cache", exist_ok=True)
+                json.dump(osm, open(cache, "w"))
             grid = defaultdict(list)  # quadrícula de ~100 m com chaves inteiras
             for la, lo, v in osm:
                 grid[(int(la * 1000), int(lo * 1000))].append((la, lo, v))
