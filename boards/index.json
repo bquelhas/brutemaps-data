@@ -99,6 +99,17 @@
     40.3492,
     -8.3541
    ]
+  },
+  {
+   "id": "stcp",
+   "name": "STCP",
+   "licence": "CC-BY 4.0 (Câmara do Porto, dados abertos)",
+   "bbox": [
+    41.0811,
+    -8.714,
+    41.2559,
+    -8.4573
+   ]
   }
  ]
 }

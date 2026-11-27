@@ -14,7 +14,7 @@ A app lê isto quando o Transitous não tem a paragem. Corre todas as semanas (G
 """
 import csv, io, json, math, os, shutil, sys, urllib.request, zipfile
 from collections import Counter, defaultdict
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 
 DAYS = 21
 TILE = 0.02
@@ -42,6 +42,10 @@ NETWORKS = [
          url="https://transportes.cimtamegaesousa.pt/Servico/services/consultas.svc/Feed/OpenGTFS"),
     dict(id="smtuc", name="SMTUC", licence="dados.gov.pt",
          dataset="https://dados.gov.pt/api/1/datasets/gtfs-estaticos-servicos-municipalizados-de-transportes-urbanos-de-coimbra/"),
+    # a STCP publica o horário mensal tarde (às vezes semanas depois de caducar): roll=True repete a última
+    # semana com serviço nos dias sem horário; a app mostra essas partidas como aproximadas ("~")
+    dict(id="stcp", name="STCP", licence="CC-BY 4.0 (Câmara do Porto, dados abertos)", roll=True,
+         dataset="https://dadosabertos.cm-porto.pt/api/3/action/package_show?id=horarios-paragens-e-rotas-stcp"),
 ]
 
 
@@ -49,8 +53,9 @@ def fetch(net):
     url = net.get("url")
     if not url:  # dados.gov.pt: o ficheiro muda de nome a cada versão; o mais recente
         d = json.load(urllib.request.urlopen(urllib.request.Request(net["dataset"], headers=UA), timeout=60))
-        res = [r for r in d["resources"] if r["url"].endswith(".zip")]
-        url = max(res, key=lambda r: r.get("last_modified") or r.get("created_at") or "")["url"]
+        d = d.get("result", d)  # CKAN (package_show) embrulha em "result"
+        res = [r for r in d["resources"] if r["url"].lower().endswith(".zip")]
+        url = max(res, key=lambda r: r.get("last_modified") or r.get("created_at") or r.get("created") or "")["url"]
     with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=300) as r:
         return zipfile.ZipFile(io.BytesIO(r.read()))
 
@@ -104,6 +109,31 @@ def simplify(pts, tol=0.00004):
     return [p for p, k in zip(pts, keep) if k]
 
 
+def roll(z, days):
+    """Dias sem serviço → o mesmo dia da semana da última semana com horário. Devolve os dias aproximados."""
+    full = defaultdict(set)
+    wd = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+    for c in rows(z, "calendar.txt"):
+        d, e = datetime.strptime(c["start_date"].strip(), "%Y%m%d").date(), datetime.strptime(c["end_date"].strip(), "%Y%m%d").date()
+        while d <= e:
+            if c[wd[d.weekday()]].strip() == "1":
+                full[d.strftime("%Y%m%d")].add(c["service_id"])
+            d += timedelta(1)
+    for c in rows(z, "calendar_dates.txt"):
+        k = c["date"].strip()
+        (full[k].add if c["exception_type"].strip() == "1" else full[k].discard)(c["service_id"])
+    last = {}  # dia da semana → serviços do último dia com horário
+    for k in sorted(k for k, v in full.items() if v):
+        last[datetime.strptime(k, "%Y%m%d").weekday()] = full[k]
+    approx = []
+    for k in days:
+        if not days[k] and not full.get(k):
+            w = datetime.strptime(k, "%Y%m%d").weekday()
+            if w in last:
+                days[k] = set(last[w]); approx.append(k)
+    return approx
+
+
 def active_days(z, today):
     days = [today + timedelta(i) for i in range(-1, DAYS)]  # ontem: viagens que passam da meia-noite
     on = defaultdict(set)
@@ -124,6 +154,7 @@ def active_days(z, today):
 def build(net, today):
     z = fetch(net)
     days = active_days(z, today)
+    approx = roll(z, days) if net.get("roll") else []
     live = set().union(*days.values())
     if not live:
         print(f"  {net['id']}: sem serviço nos próximos {DAYS} dias — ignorada", file=sys.stderr)
@@ -212,7 +243,7 @@ def build(net, today):
 
     meta = dict(id=net["id"], name=net["name"], agencies=sorted({(a.get("agency_name") or "").strip() for a in rows(z, "agency.txt")} - {""}),
                 tile=TILE, lines=lines, heads=heads, sets=sets,
-                days={k: sorted(svc_ix[s] for s in v if s in svc_ix) for k, v in days.items()})
+                days={k: sorted(svc_ix[s] for s in v if s in svc_ix) for k, v in days.items()}, approx=approx)
     with open(os.path.join(out, "meta.json"), "w") as f:
         json.dump(meta, f, ensure_ascii=False, separators=(",", ":"))
     print(f"  {net['id']}: {len(lines)} linhas, {sum(len(v) for v in tiles.values())} paragens, {len(tiles)} quadrículas, {len(best)} traçados", file=sys.stderr)
