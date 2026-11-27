@@ -12,7 +12,7 @@ e boards/index.json com o nome, a licença e o retângulo de cada rede.
 
 A app lê isto quando o Transitous não tem a paragem. Corre todas as semanas (GitHub Actions).
 """
-import csv, io, json, math, os, shutil, sys, urllib.request, zipfile
+import csv, io, json, math, os, shutil, sys, urllib.parse, urllib.request, zipfile
 from collections import Counter, defaultdict
 from datetime import date, datetime, timedelta
 
@@ -44,7 +44,7 @@ NETWORKS = [
          dataset="https://dados.gov.pt/api/1/datasets/gtfs-estaticos-servicos-municipalizados-de-transportes-urbanos-de-coimbra/"),
     # a STCP publica o horário mensal tarde (às vezes semanas depois de caducar): roll=True repete a última
     # semana com serviço nos dias sem horário; a app mostra essas partidas como aproximadas ("~")
-    dict(id="stcp", name="STCP", licence="CC-BY 4.0 (Câmara do Porto, dados abertos)", roll=True, trips=True,
+    dict(id="stcp", name="STCP", licence="CC-BY 4.0 (Câmara do Porto, dados abertos)", roll=True, trips=True, shelters=True,
          dataset="https://dadosabertos.cm-porto.pt/api/3/action/package_show?id=horarios-paragens-e-rotas-stcp"),
 ]
 
@@ -132,6 +132,24 @@ def roll(z, days):
             if w in last:
                 days[k] = set(last[w]); approx.append(k)
     return approx
+
+
+def osm_shelters(bbox):
+    """Paragens de autocarro do OSM com abrigo conhecido na área: [(lat, lon, 1/0)]. Falha → vazio."""
+    s, w, n, e = bbox
+    q = f'[out:json][timeout:120];node["highway"="bus_stop"]["shelter"]({s},{w},{n},{e});out;'
+    for url in ("https://overpass-api.de/api/interpreter", "https://overpass.private.coffee/api/interpreter", "https://overpass.kumi.systems/api/interpreter"):
+        try:
+            # o Overpass recusa User-Agents genéricos (curl → 406)
+            req = urllib.request.Request(url, data=("data=" + urllib.parse.quote(q)).encode(),
+                                         headers={"User-Agent": "brutemaps-data (github.com/bquelhas/brutemaps-data)"})
+            d = json.load(urllib.request.urlopen(req, timeout=180))
+            if "remark" in d and "error" in d["remark"].lower():
+                continue
+            return [(x["lat"], x["lon"], 1 if x["tags"].get("shelter") == "yes" else 0) for x in d["elements"]]
+        except Exception as ex:
+            print(f"  overpass {url}: {ex}", file=sys.stderr)
+    return []
 
 
 def trip_key(tid):
@@ -245,6 +263,31 @@ def build(net, today):
             with open(os.path.join(out, "v", f"{li}.json"), "w") as f:
                 json.dump(dict(s=ids, t=t_out), f, separators=(",", ":"))
 
+    # abrigo (OSM shelter=yes/no) da paragem do OSM a ≤ 25 m: "a": 1/0; sem dado, sem campo
+    shelter = {}
+    if net.get("shelters"):
+        pts = [(float(stops[sid]["stop_lat"]), float(stops[sid]["stop_lon"])) for sid in deps if stops.get(sid, {}).get("stop_lat")]
+        if pts:
+            osm = osm_shelters((min(p[0] for p in pts) - .01, min(p[1] for p in pts) - .01, max(p[0] for p in pts) + .01, max(p[1] for p in pts) + .01))
+            grid = defaultdict(list)  # quadrícula de ~100 m com chaves inteiras
+            for la, lo, v in osm:
+                grid[(int(la * 1000), int(lo * 1000))].append((la, lo, v))
+            for sid in deps:
+                st = stops.get(sid)
+                if not st or not st.get("stop_lat"):
+                    continue
+                la, lo = float(st["stop_lat"]), float(st["stop_lon"])
+                near = None
+                for dx in (-1, 0, 1):
+                    for dy in (-1, 0, 1):
+                        for a, b, v in grid.get((int(la * 1000) + dx, int(lo * 1000) + dy), []):
+                            d = math.hypot((a - la) * 111320, (b - lo) * 111320 * math.cos(math.radians(la)))
+                            if d <= 25 and (near is None or d < near[0]):
+                                near = (d, v)
+                if near:
+                    shelter[sid] = near[1]
+            print(f"  {net['id']}: abrigo conhecido em {len(shelter)} paragens ({sum(shelter.values())} com)", file=sys.stderr)
+
     sets, set_ix = [], {}
     tiles = defaultdict(list)
     lat0 = lon0 = 1e9; lat1 = lon1 = -1e9
@@ -259,8 +302,10 @@ def build(net, today):
             merged[(li, hi, t)].add(si)
         ds = sorted(([li, hi, t, ix(sets, set_ix, tuple(sorted(v)), sorted(v))] for (li, hi, t), v in merged.items()), key=lambda d: d[2])
         lines_here = sorted({d[0] for d in ds})
-        tiles[(math.floor(lat / TILE), math.floor(lon / TILE))].append(
-            dict(n=s["stop_name"].strip(), i=sid, p=[round(lat, 6), round(lon, 6)], l=lines_here, d=ds))
+        o = dict(n=s["stop_name"].strip(), i=sid, p=[round(lat, 6), round(lon, 6)], l=lines_here, d=ds)
+        if sid in shelter:
+            o["a"] = shelter[sid]
+        tiles[(math.floor(lat / TILE), math.floor(lon / TILE))].append(o)
         lat0, lat1, lon0, lon1 = min(lat0, lat), max(lat1, lat), min(lon0, lon), max(lon1, lon)
     for (x, y), ss in tiles.items():
         with open(os.path.join(out, "t", f"{x}_{y}.json"), "w") as f:
