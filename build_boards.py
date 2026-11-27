@@ -44,7 +44,7 @@ NETWORKS = [
          dataset="https://dados.gov.pt/api/1/datasets/gtfs-estaticos-servicos-municipalizados-de-transportes-urbanos-de-coimbra/"),
     # a STCP publica o horário mensal tarde (às vezes semanas depois de caducar): roll=True repete a última
     # semana com serviço nos dias sem horário; a app mostra essas partidas como aproximadas ("~")
-    dict(id="stcp", name="STCP", licence="CC-BY 4.0 (Câmara do Porto, dados abertos)", roll=True,
+    dict(id="stcp", name="STCP", licence="CC-BY 4.0 (Câmara do Porto, dados abertos)", roll=True, trips=True,
          dataset="https://dadosabertos.cm-porto.pt/api/3/action/package_show?id=horarios-paragens-e-rotas-stcp"),
 ]
 
@@ -134,6 +134,12 @@ def roll(z, days):
     return approx
 
 
+def trip_key(tid):
+    """STCP: "107_0_2|340|D1|T2|N14" — o 2.º campo é o plano e muda entre o GTFS publicado e o tempo real."""
+    p = tid.split("|")
+    return "|".join([p[0]] + p[2:]) if len(p) >= 4 else tid
+
+
 def active_days(z, today):
     days = [today + timedelta(i) for i in range(-1, DAYS)]  # ontem: viagens que passam da meia-noite
     on = defaultdict(set)
@@ -188,6 +194,7 @@ def build(net, today):
     stops = {s["stop_id"]: s for s in rows(z, "stops.txt")}
 
     deps = defaultdict(list)
+    vtrips = defaultdict(lambda: defaultdict(list))  # linha → viagem → [(partida, [(paragem, hora)])]
     shape_use = Counter()
     for tid, sts in by_trip.items():
         sts.sort()
@@ -195,6 +202,8 @@ def build(net, today):
         last = stops.get(sts[-1][1], {}).get("stop_name", "")
         head = (t.get("trip_headsign") or "").strip().rstrip("*") or last
         li, hi, si = line_of(t["route_id"]), ix(heads, head_ix, head), ix(svcs, svc_ix, t["service_id"])
+        if net.get("trips"):
+            vtrips[li][trip_key(tid)].append((sts[0][2], [(sid, s) for _, sid, s, _ in sts]))
         for _, sid, s, pick in sts[:-1]:  # na última paragem não se apanha
             if pick != "1":
                 deps[sid].append([li, hi, s, si])
@@ -220,6 +229,21 @@ def build(net, today):
             with open(os.path.join(out, "s", f"{li}_{d}.txt"), "w") as f:
                 f.write(encode(simplify(p)))
 
+    # viagens por linha (para acertar as horas pelos autocarros ao vivo): v/<linha>.json
+    # {"s": [[id, lat, lon]…], "t": {viagem: [[partida, [[i_paragem, hora]…]]…]}}
+    if vtrips:
+        os.makedirs(os.path.join(out, "v"))
+        for li, ts in vtrips.items():
+            ids, iix = [], {}
+            def si_(sid):
+                if sid not in iix:
+                    iix[sid] = len(ids); st = stops.get(sid, {})
+                    ids.append([sid, round(float(st.get("stop_lat") or 0), 6), round(float(st.get("stop_lon") or 0), 6)])
+                return iix[sid]
+            t_out = {k: [[s0, [[si_(sid), t] for sid, t in seq]] for s0, seq in sorted(set((a, tuple(b)) for a, b in v))] for k, v in ts.items()}
+            with open(os.path.join(out, "v", f"{li}.json"), "w") as f:
+                json.dump(dict(s=ids, t=t_out), f, separators=(",", ":"))
+
     sets, set_ix = [], {}
     tiles = defaultdict(list)
     lat0 = lon0 = 1e9; lat1 = lon1 = -1e9
@@ -235,7 +259,7 @@ def build(net, today):
         ds = sorted(([li, hi, t, ix(sets, set_ix, tuple(sorted(v)), sorted(v))] for (li, hi, t), v in merged.items()), key=lambda d: d[2])
         lines_here = sorted({d[0] for d in ds})
         tiles[(math.floor(lat / TILE), math.floor(lon / TILE))].append(
-            dict(n=s["stop_name"].strip(), p=[round(lat, 6), round(lon, 6)], l=lines_here, d=ds))
+            dict(n=s["stop_name"].strip(), i=sid, p=[round(lat, 6), round(lon, 6)], l=lines_here, d=ds))
         lat0, lat1, lon0, lon1 = min(lat0, lat), max(lat1, lat), min(lon0, lon), max(lon1, lon)
     for (x, y), ss in tiles.items():
         with open(os.path.join(out, "t", f"{x}_{y}.json"), "w") as f:
