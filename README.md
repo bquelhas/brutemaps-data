@@ -16,5 +16,7 @@ Os dados são dos operadores; aqui só mudam de formato.
 
 ### Zonas tarifárias (`boards/zones/`)
 `build_zones.py`: zonas Andante (Porto) desenhadas a partir da zona de cada paragem do metro e da STCP
-(OTP da Porto Digital, CC0): células de Voronoi cortadas a 1,2 km, juntas por zona. **Aproximadas** —
-a fronteira oficial é entre paragens, não uma linha no terreno.
+(OTP da Porto Digital, CC0): células de Voronoi cortadas a 1,2 km, com **as fronteiras entre zonas
+diferentes** (uma aresta de Voronoi = uma linha, não o contorno de cada polígono, que duplicava as
+linhas partilhadas) e uma etiqueta por zona. **Aproximadas** — a fronteira oficial é entre paragens,
+não uma linha no terreno.

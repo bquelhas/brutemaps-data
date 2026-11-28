@@ -4,15 +4,17 @@ Zonas tarifárias desenhadas a partir da zona de cada paragem (zone_id do GTFS).
 
 Andante (Porto): o OTP da Porto Digital dá a zona de cada paragem do metro e da STCP. Cada paragem
 fica com a sua célula de Voronoi, cortada a ZONE_REACH m (para não pintar serras sem paragens), e as
-células da mesma zona juntam-se num polígono. Sai boards/zones/porto.geojson: polígonos com
-`zone` e pontos de etiqueta (`label`). Precisa de shapely e scipy.
+células da mesma zona juntam-se num polígono. Sai boards/zones/porto.geojson: as **fronteiras comuns**
+(linhas, cada aresta uma vez só — a união dos contornos dissolve as partilhadas) e pontos de etiqueta
+(`label`). O launcher/app desenha as linhas e usa os pontos para o nome da zona. Precisa de shapely e
+scipy.
 """
 import json, math, os, urllib.request
 from collections import defaultdict
 
 import numpy as np
 from scipy.spatial import Voronoi
-from shapely.geometry import MultiPoint, Point, Polygon, mapping
+from shapely.geometry import LineString, Point, Polygon
 from shapely.ops import unary_union
 
 OTP = "https://otp.portodigital.pt/otp/gtfs/v1"
@@ -54,26 +56,51 @@ def main():
         if not cell.is_empty:
             cells[s["zoneId"]].append(cell)
 
+    # Área coberta: até ZONE_REACH de alguma paragem (o que os polígonos antigos pintavam).
+    coverage = unary_union([Point(x, y).buffer(ZONE_REACH, 16) for x, y in pts])
+
+    # Fronteiras = arestas de Voronoi entre células de ZONAS DIFERENTES, cortadas à área coberta.
+    # Cada aresta aparece uma só vez (é a fronteira entre duas células, não o contorno de cada
+    # polígono), ao contrário do polígono por zona que duplicava as linhas.
+    raw_borders = []
+    for (p1, p2), (v1, v2) in zip(vor.ridge_points, vor.ridge_vertices):
+        if v1 < 0 or v2 < 0 or p1 >= len(ss) or p2 >= len(ss):
+            continue
+        if ss[p1]["zoneId"] == ss[p2]["zoneId"]:
+            continue
+        seg = LineString([vor.vertices[v1], vor.vertices[v2]]).intersection(coverage)
+        if not seg.is_empty:
+            raw_borders.append(seg)
+    # o limite exterior da área coberta também é um limite
+    raw_borders.append(coverage.boundary)
+    borders = unary_union(raw_borders).simplify(25)
+
+    def conv_line(g):
+        return [list(back(x, y)) for x, y in g.coords]
+
     feats = []
+    def collect(g):
+        if g.geom_type in ("LineString", "LinearRing"):
+            yield g
+        elif hasattr(g, "geoms"):
+            for sub in g.geoms:
+                yield from collect(sub)
+    for ln in collect(borders):
+        if ln.length < 50:
+            continue
+        feats.append({"type": "Feature", "properties": {},
+                      "geometry": {"type": "LineString", "coordinates": conv_line(ln)}})
+
+    # Etiquetas: o centro do maior pedaço de cada zona (a forma não é usada para desenhar).
     for zone, cs in sorted(cells.items()):
-        shape = unary_union(cs).buffer(30).buffer(-30).simplify(25)
-        # pedaços soltos pequenos (uma paragem com zona diferente no meio de outra): fora
+        shape = unary_union(cs)
         parts = [g for g in getattr(shape, "geoms", [shape]) if g.area > 150_000]
         if not parts:
             continue
-        shape = unary_union(parts)
-        geo = mapping(shape)
-        def conv(c):
-            return [[list(back(x, y)) for x, y in ring] for ring in c]
-        if geo["type"] == "Polygon":
-            coords = conv(geo["coordinates"])
-        else:
-            coords = [conv(p) for p in geo["coordinates"]]
-        feats.append({"type": "Feature", "properties": {"zone": zone}, "geometry": {"type": geo["type"], "coordinates": coords}})
-        # etiqueta no maior pedaço
-        big = max(getattr(shape, "geoms", [shape]), key=lambda g: g.area)
+        big = max(parts, key=lambda g: g.area)
         lp = big.representative_point()
-        feats.append({"type": "Feature", "properties": {"zone": zone, "label": True}, "geometry": {"type": "Point", "coordinates": list(back(lp.x, lp.y))}})
+        feats.append({"type": "Feature", "properties": {"zone": zone, "label": True},
+                      "geometry": {"type": "Point", "coordinates": list(back(lp.x, lp.y))}})
 
     os.makedirs(OUT, exist_ok=True)
     with open(os.path.join(OUT, "porto.geojson"), "w") as f:
